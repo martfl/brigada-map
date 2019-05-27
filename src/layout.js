@@ -7,6 +7,7 @@ import ControlPanel from "./control-panel";
 const Layout = () => {
   const route = useCurrentRoute();
   const { data } = route;
+  console.log(route);
 
   const [vp, setVp] = useState({
     latitude: 19.432608, // CDMX
@@ -41,6 +42,16 @@ const Layout = () => {
     });
   }, [organizations]);
 
+  const setViewport = ({ lng, lat }) => {
+    setVp(vp => ({
+      latitude: lat,
+      longitude: lng,
+      zoom: 5,
+      bearing: 0,
+      pitch: 0
+    }));
+  };
+
   const setFill = ({ lng, lat, fill, size }) => {
     setLocations(state => {
       return state.map(point => {
@@ -52,11 +63,10 @@ const Layout = () => {
       });
     });
   };
-
   return (
     <React.Fragment>
       <Map data={locations} vp={vp} />
-      <ControlPanel setFill={setFill} setVp={setVp}>
+      <ControlPanel setFill={setFill} setVp={setViewport}>
         {organizations}
       </ControlPanel>
     </React.Fragment>

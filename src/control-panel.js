@@ -1,7 +1,6 @@
 import React from "react";
 import { Flex, Card, Box, Text, Heading } from "rebass";
 import { LazyImage } from "react-lazy-images";
-import { LinearInterpolator } from "react-map-gl";
 
 import { Bar, FixedCard } from "./components";
 
@@ -52,9 +51,10 @@ const Section = ({ orgId, setFill, setVp, name, children }) => (
           key={`${orgId}${id}`}
           width={1}
           my={3}
-          onMouseEnter={() =>
-            setFill({ ...location, size: 10000, fill: [0, 0, 255] })
-          }
+          onClick={() => setVp(location)}
+          onMouseEnter={() => {
+            setFill({ ...location, size: 20000, fill: [0, 0, 255] });
+          }}
           onMouseLeave={() =>
             setFill({ ...location, size: 10000, fill: [255, 0, 0] })
           }
