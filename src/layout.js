@@ -8,6 +8,14 @@ const Layout = () => {
   const route = useCurrentRoute();
   const { data } = route;
 
+  const [vp, setVp] = useState({
+    latitude: 19.432608, // CDMX
+    longitude: -99.133209,
+    zoom: 5,
+    bearing: 0,
+    pitch: 0
+  });
+
   const [organizations, setOrgs] = useState([]);
   useEffect(() => {
     if (data) {
@@ -25,7 +33,7 @@ const Layout = () => {
         if (submissions.length !== 0)
           submissions.map(({ location }) =>
             setLocations(state =>
-              state.concat({ ...location, size: 20, fill: "#d0d" })
+              state.concat({ ...location, size: 10000, fill: [255, 0, 0] })
             )
           );
       }
@@ -33,10 +41,24 @@ const Layout = () => {
     });
   }, [organizations]);
 
+  const setFill = ({ lng, lat, fill, size }) => {
+    setLocations(state => {
+      return state.map(point => {
+        if (point.lng === lng && point.lat === lat) {
+          point.fill = fill;
+          point.size = size;
+        }
+        return point;
+      });
+    });
+  };
+
   return (
     <React.Fragment>
-      <Map locations={locations} />
-      <ControlPanel>{organizations}</ControlPanel>
+      <Map data={locations} vp={vp} />
+      <ControlPanel setFill={setFill} setVp={setVp}>
+        {organizations}
+      </ControlPanel>
     </React.Fragment>
   );
 };

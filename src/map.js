@@ -1,97 +1,74 @@
-import React, { useState, useEffect } from "react";
-import { StaticMap, NavigationControl } from "react-map-gl";
-import DeckGL from "@deck.gl/react";
-import { IconLayer, ScatterplotLayer } from "@deck.gl/layers";
+import React from "react";
+import { StaticMap } from "react-map-gl";
+import { MapboxLayer } from "@deck.gl/mapbox";
+import { ScatterplotLayer } from "@deck.gl/layers";
+import { DeckGL } from "@deck.gl/react";
 
-import Icons from "./location-icon-atlas.png";
-import IconMapping from "./location-icon-mapping.json";
-
-const navStyle = {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  padding: "10px"
+const INITIAL_VIEW_STATE = {
+  latitude: 19.432608, // CDMX
+  longitude: -99.133209,
+  zoom: 5,
+  bearing: 0,
+  pitch: 0
 };
 
-const TOKEN =
-  "pk.eyJ1IjoibWFydGZsIiwiYSI6ImNqdnhiZDBsOTAzZTA0YWxmMjJsa2R6dmUifQ.GDquTTEtTE61pJz9cDnfzA"; // Set your mapbox token here
-
-const Map = props => {
-  const { locations } = props;
-  const [viewport, setViewport] = useState({});
-  useEffect(() => {
-    setViewport({
-      latitude: 19.432608, // CDMX
-      longitude: -99.133209,
-      zoom: 5,
-      bearing: 0,
-      pitch: 0
-    });
-  }, []);
-
-  const renderLayers = () => {
-    const layerProps = {
-      data: locations,
-      pickable: true,
-      wrapLongitude: true,
-      getPosition: d => [d.lat, d.lng],
-      iconAtlas: Icons,
-      iconMapping: IconMapping,
-      /* onHover: onHover, */
-      sizeScale: 60
-    };
-
-    const size = viewport ? Math.min(1.5 ** viewport.zoom - 10, 1) : 0.1;
-
-    const layer = new IconLayer({
-      ...layerProps,
-      id: "icon",
-      getIcon: d => "marker",
-      getSize: size
-    });
-
-    const otherLayer = new ScatterplotLayer({
-      id: "bart-stations",
-      data: [
-        {
-          name: "Colma",
-          passengers: 4214,
-          coordinates: [-122.466233, 37.684638]
-        },
-        {
-          name: "Civic Center",
-          passengers: 24798,
-          coordinates: [-122.413756, 37.779528]
-        }
-      ],
-      stroked: false,
-      filled: true,
-      getPosition: d => d.coordinates,
-      getRadius: d => Math.sqrt(d.passengers),
-      getFillColor: [255, 200, 0]
-    });
-    return [layer, otherLayer];
+class Map extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+  _onWebGLInitialized = gl => {
+    this.setState({ gl });
   };
 
-  return (
-    <DeckGL
-      layers={renderLayers()}
-      initialViewState={viewport}
-      viewState={viewport}
-      controller
-    >
-      <StaticMap
-        mapStyle="mapbox://styles/mapbox/dark-v9"
-        mapboxApiAccessToken={TOKEN}
-        reuseMaps
-        preventStyleDiffing
+  _onMapLoad = () => {
+    const map = this._map;
+    const deck = this._deck;
+    const { data, vp } = this.props;
+    this.setState({ data, vp });
+    map.addLayer(new MapboxLayer({ id: "my-scatterplot", deck }));
+  };
+
+  render() {
+    const { gl, vp, data } = this.state;
+    const viewState = vp ? vp : INITIAL_VIEW_STATE;
+    const layers = [
+      new ScatterplotLayer({
+        id: "my-scatterplot",
+        data: data || [],
+        getPosition: d => [d.lng, d.lat],
+        getRadius: d => d.size,
+        getFillColor: d => d.fill,
+        pickable: true
+      })
+    ];
+
+    return (
+      <DeckGL
+        ref={ref => {
+          // save a reference to the Deck instance
+          this._deck = ref && ref.deck;
+        }}
+        layers={layers}
+        initialViewState={viewState}
+        controller={true}
+        onWebGLInitialized={this._onWebGLInitialized}
       >
-        <div className="nav" style={navStyle}>
-          <NavigationControl onViewportChange={vp => setViewport(vp)} />
-        </div>
-      </StaticMap>
-    </DeckGL>
-  );
-};
+        {gl && (
+          <StaticMap
+            ref={ref => {
+              // save a reference to the mapboxgl.Map instance
+              this._map = ref && ref.getMap();
+            }}
+            gl={gl}
+            mapStyle="mapbox://styles/mapbox/light-v9"
+            mapboxApiAccessToken="pk.eyJ1IjoibWFydGZsIiwiYSI6ImNqdnhiZDBsOTAzZTA0YWxmMjJsa2R6dmUifQ.GDquTTEtTE61pJz9cDnfzA"
+            onLoad={this._onMapLoad}
+          />
+        )}
+      </DeckGL>
+    );
+  }
+}
 
 export default Map;

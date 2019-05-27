@@ -1,63 +1,84 @@
-import React from 'react'
-import { Flex, Card, Box, Text, Heading, Image } from 'rebass'
-import { LazyImage } from 'react-lazy-images'
+import React from "react";
+import { Flex, Card, Box, Text, Heading } from "rebass";
+import { LazyImage } from "react-lazy-images";
+import { LinearInterpolator } from "react-map-gl";
 
-import { Bar, FixedCard } from './components'
+import { Bar, FixedCard } from "./components";
 
-const ImageCard = ({ children }) => {
+const ImageCard = ({ nImages, children }) => {
+  const { src, alt } = children;
   return (
-    <Flex alignItems="center">
-      <Image
-        height="250px"
-        borderRadius={8}
-        {...children}
-        alt=""
-        className="intrinsic-item animated fadeIn"
-      />
-    </Flex>
-  )
-}
+    <Card
+      p={4}
+      py={6}
+      backgroundImage={`url(${src})`}
+      backgroundSize="cover"
+      borderRadius={8}
+      color="white"
+      bg="darkgray"
+      alt={alt}
+    >
+      <Heading textAlign="center" fontSize={[5, 6]}>
+        {nImages > 1 ? `+${nImages - 1}` : ""}
+      </Heading>
+    </Card>
+  );
+};
 
 const Info = ({ images }) => {
-  // const { lng, lat } = location
-  const { url, alt } = images[0]
+  const { url, alt } = images[0];
   return images.length !== 0 ? (
     <LazyImage
       src={url}
       alt={alt}
       debounceDurationMs={500}
       placeholder={({ ref }) => <div ref={ref} className="intrinsic-item" />}
-      actual={({ imageProps }) => <ImageCard>{imageProps}</ImageCard>}
+      actual={({ imageProps }) => (
+        <ImageCard nImages={images.length}>{imageProps}</ImageCard>
+      )}
     />
   ) : (
     <Text>No submissions.</Text>
-  )
-}
+  );
+};
 
-const Section = ({ orgId, name, children }) => (
+const Section = ({ orgId, setFill, setVp, name, children }) => (
   <Box p={3} width={1}>
     <Heading>{name}</Heading>
     <Bar />
-    {Object.values(children)
-      .slice(0, 15)
-      .map(({ images, location, id }) => (
-        <FixedCard key={`${orgId}${id}`} width={1} my={3}>
-          <Info images={images} location={location} />
+    {Object.values(children).map(({ images, location, id }) => {
+      return (
+        <FixedCard
+          key={`${orgId}${id}`}
+          width={1}
+          my={3}
+          onMouseEnter={() =>
+            setFill({ ...location, size: 10000, fill: [0, 0, 255] })
+          }
+          onMouseLeave={() =>
+            setFill({ ...location, size: 10000, fill: [255, 0, 0] })
+          }
+        >
+          <Info images={images} />
         </FixedCard>
-      ))}
+      );
+    })}
   </Box>
-)
+);
 
-const ControlPanel = ({ children }) => {
+const ControlPanel = ({ setVp, setFill, children }) => {
   const submissions = Object.values(children).map(org => {
     if (org.actions) {
-      const actions = org.actions.reduce((acc, v) => acc.concat(v.submissions), [])
-      actions.name = org.name
-      actions.orgId = org.id
-      return actions
+      const actions = org.actions.reduce(
+        (acc, v) => acc.concat(v.submissions),
+        []
+      );
+      actions.name = org.name;
+      actions.orgId = org.id;
+      return actions;
     }
-    return []
-  })
+    return [];
+  });
 
   return (
     <Flex my={2}>
@@ -72,12 +93,19 @@ const ControlPanel = ({ children }) => {
         className="control-panel"
       >
         {submissions.map(({ orgId, name, ...rest }) => (
-          <Section key={orgId} orgId={orgId} name={name}>
+          <Section
+            key={orgId}
+            setFill={setFill}
+            setVp={setVp}
+            orgId={orgId}
+            name={name}
+          >
             {rest}
           </Section>
         ))}
       </Card>
     </Flex>
-  )
-}
-export default ControlPanel
+  );
+};
+
+export default ControlPanel;
