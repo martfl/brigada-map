@@ -43,13 +43,11 @@ const Layout = props => {
   }, [organizations]);
 
   const setViewport = ({ lng, lat }) => {
-    setVp(vp => ({
-      latitude: lat,
+    setVp({
       longitude: lng,
-      zoom: 5,
-      bearing: 0,
-      pitch: 0
-    }));
+      latitude: lat,
+      zoom: 7
+    });
   };
 
   const setFill = ({ lng, lat, fill, size }) => {

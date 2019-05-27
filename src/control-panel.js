@@ -51,8 +51,8 @@ const Section = ({ orgId, setFill, setVp, name, children }) => (
           key={`${orgId}${id}`}
           width={1}
           my={3}
+          onMouseUp={() => setVp(location)}
           onMouseEnter={() => {
-            setVp(location);
             setFill({ ...location, size: 20000, fill: [0, 0, 255] });
           }}
           onMouseLeave={() =>

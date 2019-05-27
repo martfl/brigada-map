@@ -1,9 +1,9 @@
 import React, { Suspense } from "react";
 import { Router, View, NotFoundBoundary } from "react-navi";
-import "intersection-observer";
-import "./App.css";
 
 import routes from "./routes";
+import "intersection-observer";
+import "./app.css";
 
 const renderNotFound = () => {
   return (
