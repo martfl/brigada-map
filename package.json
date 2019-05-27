@@ -3,9 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@deck.gl/core": "^7.0.9",
+    "@deck.gl/layers": "^7.0.9",
+    "@deck.gl/react": "^7.0.9",
+    "axios": "^0.18.0",
+    "intersection-observer": "^0.7.0",
+    "navi": "^0.12.7",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "react-scripts": "3.0.1"
+    "react-lazy-images": "^1.1.0",
+    "react-map-gl": "^4.1.2",
+    "react-navi": "^0.12.7",
+    "react-scripts": "3.0.1",
+    "rebass": "^3.1.0",
+    "styled-components": "^4.2.0",
+    "styled-system": "^4.2.2"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -1,26 +1,26 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Suspense } from "react";
+import { Router, View, NotFoundBoundary } from "react-navi";
+import "intersection-observer";
+import "./App.css";
 
-function App() {
+import routes from "./routes";
+
+const renderNotFound = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>404 - Not Found</h1>
     </div>
   );
-}
+};
+
+const App = () => (
+  <Router routes={routes}>
+    <NotFoundBoundary render={renderNotFound}>
+      <Suspense fallback={<div>Loading...</div>}>
+        <View />
+      </Suspense>
+    </NotFoundBoundary>
+  </Router>
+);
 
 export default App;

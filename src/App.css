@@ -1,33 +1,101 @@
-.App {
-  text-align: center;
+body {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  background: #000;
+}
+#map {
+  width: 100vw;
+  height: 100vh;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-  pointer-events: none;
+.control-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  max-width: 480px;
+  line-height: 2;
+  outline: none;
+  max-height: 40vh;
+  overflow-y: scroll;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.bg-near-white {
+  background-color: #f4f4f4;
 }
 
-.App-link {
-  color: #61dafb;
+.intrinsic {
+  display: block;
+  position: relative;
+  width: 100%;
 }
 
-@keyframes App-logo-spin {
+.intrinsic--square {
+  padding-top: 100%;
+}
+
+.intrinsic--4x3 {
+  padding-top: 75%;
+}
+
+.intrinsic--3x2 {
+  padding-top: 66.6%;
+}
+
+.intrinsic-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.img {
+  max-width: 100%;
+}
+
+.relative {
+  position: relative;
+}
+
+.z-0 {
+  z-index: 0;
+}
+
+.z-1 {
+  z-index: 1;
+}
+
+.z-2 {
+  z-index: 2;
+}
+
+/* Animations */
+.animated {
+  -webkit-animation-duration: 0.4s;
+  animation-duration: 0.4s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+@-webkit-keyframes fadeIn {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
   }
+
   to {
-    transform: rotate(360deg);
+    opacity: 1;
   }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.fadeIn {
+  -webkit-animation-name: fadeIn;
+  animation-name: fadeIn;
 }
