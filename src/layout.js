@@ -4,10 +4,10 @@ import { useCurrentRoute } from "react-navi";
 import Map from "./map";
 import ControlPanel from "./control-panel";
 
-const Layout = () => {
+const Layout = props => {
   const route = useCurrentRoute();
-  const { data } = route;
-  console.log(route);
+  if (!Object.keys(route.data).length) route.data = [props.data];
+  const data = route.data;
 
   const [vp, setVp] = useState({
     latitude: 19.432608, // CDMX
@@ -17,28 +17,28 @@ const Layout = () => {
     pitch: 0
   });
 
-  const [organizations, setOrgs] = useState([]);
+  const [organizations, setOrgs] = useState({});
   useEffect(() => {
-    if (data) {
+    if (data && data[0]) {
       setOrgs(data);
     }
   }, [data]);
+
   const [locations, setLocations] = useState([]);
   useEffect(() => {
-    Object.values(organizations).map(org => {
-      if (org.actions) {
-        const submissions = org.actions.reduce(
-          (acc, v) => acc.concat(v.submissions),
-          []
+    Object.values(organizations).map(({ actions }) => {
+      const locs = actions.reduce((acc, { submissions }) => {
+        return acc.concat(
+          submissions.map(({ location }) => ({
+            ...location,
+            size: 10000,
+            fill: [255, 0, 0]
+          }))
         );
-        if (submissions.length !== 0)
-          submissions.map(({ location }) =>
-            setLocations(state =>
-              state.concat({ ...location, size: 10000, fill: [255, 0, 0] })
-            )
-          );
-      }
-      return org;
+      }, []);
+
+      setLocations(locs);
+      return actions;
     });
   }, [organizations]);
 

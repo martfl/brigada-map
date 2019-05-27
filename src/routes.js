@@ -1,21 +1,21 @@
-import React from 'react'
-import { mount, route } from 'navi'
+import React from "react";
+import { mount, route } from "navi";
 
-import Layout from './layout'
-import { fetchOrganizations, fetchOrganization } from './api'
+import Layout from "./layout";
+import { fetchOrganizations, fetchOrganization } from "./api";
 
 const routes = mount({
-  '/': route({
+  "/": route({
     getData: () => fetchOrganizations(),
     view: <Layout />
   }),
-  '/:id': route(async req => {
-    const { id } = req.params
+  "/:id": route(async req => {
+    const { id } = req.params;
+    const data = await fetchOrganization(id);
     return {
-      getData: () => fetchOrganization(id),
-      view: <Layout />
-    }
+      view: <Layout data={data} />
+    };
   })
-})
+});
 
-export default routes
+export default routes;
