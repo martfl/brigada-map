@@ -50,21 +50,10 @@ const Layout = props => {
     });
   };
 
-  const setFill = ({ lng, lat, fill, size }) => {
-    setLocations(state => {
-      return state.map(point => {
-        if (point.lng === lng && point.lat === lat) {
-          point.fill = fill;
-          point.size = size;
-        }
-        return point;
-      });
-    });
-  };
   return (
     <React.Fragment>
       <Map data={locations} vp={vp} />
-      <ControlPanel setFill={setFill} setVp={setViewport}>
+      <ControlPanel handlers={[setLocations]} locations={locations}>
         {organizations}
       </ControlPanel>
     </React.Fragment>

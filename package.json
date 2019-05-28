@@ -16,6 +16,8 @@
     "react-map-gl": "^4.1.2",
     "react-navi": "^0.12.7",
     "react-scripts": "3.0.1",
+    "react-simple-img": "^2.2.0",
+    "react-spinkit": "^3.0.0",
     "rebass": "^3.1.0",
     "styled-components": "^4.2.0",
     "styled-system": "^4.2.2"

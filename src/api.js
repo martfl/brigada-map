@@ -11,7 +11,7 @@ export const fetchOrganization = async id => {
 
 export const fetchOrganizations = async () => {
   const req = await axios(
-    `https://api.brigada.mx/api/organizations/?page_size=1&offset=0`
+    `https://api.brigada.mx/api/organizations/?page_size=5&offset=0`
   );
   if (!req || req.status !== 200 || !req.data) {
     throw new NotFoundError();

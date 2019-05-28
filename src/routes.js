@@ -11,6 +11,9 @@ const routes = mount({
   }),
   "/:id": route(async req => {
     const { id } = req.params;
+    if (isNaN(parseInt(id))) {
+      return null;
+    }
     const data = await fetchOrganization(id);
     return {
       view: <Layout data={data} />
