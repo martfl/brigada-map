@@ -4,6 +4,7 @@ import axios from "axios";
 export const fetchOrganization = async id => {
   const req = await axios(`https://api.brigada.mx/api/organizations/${id}/`);
   if (!req || req.status !== 200 || !req.data) {
+    if (req.status === 404) return [];
     throw new NotFoundError();
   }
   return req.data;

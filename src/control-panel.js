@@ -6,69 +6,91 @@ import Spinner from "react-spinkit";
 import { Bar, Container } from "./components";
 
 const ControlPanel = ({ children, handlers, locations }) => {
-  const actions = handleData(children);
-  console.log(children);
   const [setLocations] = handlers;
-  return actions ? (
+  if (!children)
+    return (
+      <Text fontSize={[3, 4, 5]} fontWeight="bold" color="magenta">
+        No organization found.
+      </Text>
+    );
+  return (
     <Container>
-      <OrganizationCard
-        name={actions[0].org.name}
-        locations={locations}
-        setLocations={setLocations}
-      >
-        {actions.map(({ submissions, id, org }) => {
-          if (!submissions) {
+      <Flex flexDirection="column">
+        {Object.values(children).map(
+          ({ id, name, actions, image_count, action_count }) => {
             return (
-              <Text
+              <OrganizationCard
+                my={2}
                 key={id}
-                fontSize={[3, 4, 5]}
-                fontWeight="bold"
-                color="magenta"
+                name={name}
+                orgId={id}
+                setLocations={setLocations}
               >
-                No submissions found.
-              </Text>
+                {action_count > 0 ? (
+                  actions.map(({ submissions, id, org }) => {
+                    if (!submissions) {
+                      return (
+                        <Text
+                          key={id}
+                          fontSize={[3, 4, 5]}
+                          fontWeight="bold"
+                          color="magenta"
+                        >
+                          No submissions found.
+                        </Text>
+                      );
+                    }
+                    const src = submissions[0].images[0].url;
+
+                    return (
+                      <ImageContainer key={id} src={src}>
+                        {image_count}
+                      </ImageContainer>
+                    );
+                  })
+                ) : (
+                  <Text
+                    key={id}
+                    fontSize={[3, 4, 5]}
+                    fontWeight="bold"
+                    color="magenta"
+                  >
+                    No actions found.
+                  </Text>
+                )}
+              </OrganizationCard>
             );
           }
-          const n = submissions.reduce((sum, s) => (sum += s.images.length), 0);
-          const src = submissions[0].images[0].url;
-          return (
-            <ImageContainer key={id} src={src}>
-              {n}
-            </ImageContainer>
-          );
-        })}
-      </OrganizationCard>
+        )}
+      </Flex>
     </Container>
-  ) : (
-    <div>no data.</div>
   );
 };
 
-const OrganizationCard = ({ children, name, locations, setLocations }) => {
+const OrganizationCard = ({ children, name, orgId, setLocations }) => {
   return (
     <Card
+      m={3}
       p={4}
       bg="#f6f6ff"
       borderRadius={8}
       boxShadow="0 2px 16px rgba(0, 0, 0, 0.25)"
-      onMouseEnter={() => {
-        setLocations(locs =>
-          locs.map(location => ({
-            ...location,
-            size: 20000,
-            fill: [0, 0, 255]
-          }))
-        );
-      }}
-      onMouseLeave={() => {
-        setLocations(locs =>
-          locs.map(location => ({
-            ...location,
-            size: 10000,
-            fill: [255, 0, 0]
-          }))
-        );
-      }}
+      onMouseEnter={() =>
+        setLocations(prevLocations => {
+          return prevLocations.map(loc =>
+            loc.id === orgId
+              ? { ...loc, size: 20000, fill: [0, 255, 255] }
+              : loc
+          );
+        })
+      }
+      onMouseLeave={() =>
+        setLocations(prevLocations => {
+          return prevLocations.map(loc =>
+            loc.id === orgId ? { ...loc, size: 10000, fill: [255, 0, 0] } : loc
+          );
+        })
+      }
     >
       <Heading as="h1" my={2} fontWeight="bold" fontSize={[3, 4, 5]}>
         {name}
@@ -80,7 +102,7 @@ const OrganizationCard = ({ children, name, locations, setLocations }) => {
 };
 const ImageSpinner = () => (
   <Flex flexWrap="wrap" alignItems="center" justifyContent="center">
-    <Box width={1} px="50%" mt={4}>
+    <Box width={1} px="50%" m={4}>
       <Spinner name="folding-cube" />
     </Box>
   </Flex>
@@ -123,21 +145,4 @@ const ImageCard = ({ text, src, alt }) => (
   </Card>
 );
 
-const handleData = obj => {
-  console.log(obj);
-  const [arr] = Object.values(obj).map(({ actions }) =>
-    actions
-      ? actions.reduce(
-          (acc, { submissions, id, organization }) =>
-            acc.concat({
-              id,
-              submissions,
-              org: { name: organization.name, id: organization.id }
-            }),
-          []
-        )
-      : []
-  );
-  return arr;
-};
 export default ControlPanel;

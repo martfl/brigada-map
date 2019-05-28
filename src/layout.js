@@ -26,18 +26,20 @@ const Layout = props => {
 
   const [locations, setLocations] = useState([]);
   useEffect(() => {
-    Object.values(organizations).map(({ actions }) => {
-      const locs = actions.reduce((acc, { submissions }) => {
-        return acc.concat(
-          submissions.map(({ location }) => ({
-            ...location,
-            size: 10000,
-            fill: [255, 0, 0]
-          }))
-        );
-      }, []);
-
-      setLocations(locs);
+    Object.values(organizations).map(organization => {
+      const actions = organization.actions;
+      if (actions.length === 0) return [];
+      const id = actions[0].organization.id;
+      const submissions = actions.map(action => action.submissions);
+      const locations = submissions.map(submission =>
+        submission.map(({ location }) => ({
+          ...location,
+          size: 10000,
+          fill: [255, 0, 0],
+          id
+        }))
+      );
+      setLocations(locs => locs.concat(...locations));
       return actions;
     });
   }, [organizations]);
@@ -49,11 +51,13 @@ const Layout = props => {
       zoom: 7
     });
   };
-
   return (
     <React.Fragment>
       <Map data={locations} vp={vp} />
-      <ControlPanel handlers={[setLocations]} locations={locations}>
+      <ControlPanel
+        handlers={[setLocations, setViewport]}
+        locations={locations}
+      >
         {organizations}
       </ControlPanel>
     </React.Fragment>
