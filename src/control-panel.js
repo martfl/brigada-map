@@ -1,83 +1,148 @@
-import React from 'react'
-import { Flex, Card, Box, Text, Heading, Image } from 'rebass'
-import { LazyImage } from 'react-lazy-images'
+import React from "react";
+import { Card, Box, Text, Heading, Flex } from "rebass";
+import { LazyImage } from "react-lazy-images";
+import Spinner from "react-spinkit";
 
-import { Bar, FixedCard } from './components'
+import { Bar, Container } from "./components";
 
-const ImageCard = ({ children }) => {
+const ControlPanel = ({ children, handlers, locations }) => {
+  const [setLocations] = handlers;
+  if (!children)
+    return (
+      <Text fontSize={[3, 4, 5]} fontWeight="bold" color="magenta">
+        No organization found.
+      </Text>
+    );
   return (
-    <Flex alignItems="center">
-      <Image
-        height="250px"
-        borderRadius={8}
-        {...children}
-        alt=""
-        className="intrinsic-item animated fadeIn"
+    <Container>
+      <Flex flexDirection="column">
+        {Object.values(children).map(
+          ({ id, name, actions, image_count, action_count }) => {
+            return (
+              <OrganizationCard
+                my={2}
+                key={id}
+                name={name}
+                orgId={id}
+                setLocations={setLocations}
+              >
+                {action_count > 0 ? (
+                  actions.map(({ submissions, id, org }) => {
+                    if (!submissions) {
+                      return (
+                        <Text
+                          key={id}
+                          fontSize={[3, 4, 5]}
+                          fontWeight="bold"
+                          color="magenta"
+                        >
+                          No submissions found.
+                        </Text>
+                      );
+                    }
+                    const src = submissions[0].images[0].url;
+
+                    return (
+                      <ImageContainer key={id} src={src}>
+                        {image_count}
+                      </ImageContainer>
+                    );
+                  })
+                ) : (
+                  <Text
+                    key={id}
+                    fontSize={[3, 4, 5]}
+                    fontWeight="bold"
+                    color="magenta"
+                  >
+                    No actions found.
+                  </Text>
+                )}
+              </OrganizationCard>
+            );
+          }
+        )}
+      </Flex>
+    </Container>
+  );
+};
+
+const OrganizationCard = ({ children, name, orgId, setLocations }) => {
+  return (
+    <Card
+      m={3}
+      p={4}
+      bg="#f6f6ff"
+      borderRadius={8}
+      boxShadow="0 2px 16px rgba(0, 0, 0, 0.25)"
+      onMouseEnter={() =>
+        setLocations(prevLocations => {
+          return prevLocations.map(loc =>
+            loc.id === orgId
+              ? { ...loc, size: 20000, fill: [0, 255, 255] }
+              : loc
+          );
+        })
+      }
+      onMouseLeave={() =>
+        setLocations(prevLocations => {
+          return prevLocations.map(loc =>
+            loc.id === orgId ? { ...loc, size: 10000, fill: [255, 0, 0] } : loc
+          );
+        })
+      }
+    >
+      <Heading as="h1" my={2} fontWeight="bold" fontSize={[3, 4, 5]}>
+        {name}
+      </Heading>
+      <Bar />
+      {children}
+    </Card>
+  );
+};
+const ImageSpinner = () => (
+  <Flex flexWrap="wrap" alignItems="center" justifyContent="center">
+    <Box width={1} px="50%" m={4}>
+      <Spinner name="folding-cube" />
+    </Box>
+  </Flex>
+);
+const ImageContainer = ({ src, children }) => {
+  return (
+    <Box width={1}>
+      <LazyImage
+        src={src}
+        alt={""}
+        debounceDurationMs={1500}
+        placeholder={({ ref }) => (
+          <div ref={ref}>
+            <ImageSpinner />
+          </div>
+        )}
+        actual={({ imageProps }) => (
+          <ImageCard {...imageProps} text={children} />
+        )}
       />
-    </Flex>
-  )
-}
+    </Box>
+  );
+};
 
-const Info = ({ images }) => {
-  // const { lng, lat } = location
-  const { url, alt } = images[0]
-  return images.length !== 0 ? (
-    <LazyImage
-      src={url}
-      alt={alt}
-      debounceDurationMs={500}
-      placeholder={({ ref }) => <div ref={ref} className="intrinsic-item" />}
-      actual={({ imageProps }) => <ImageCard>{imageProps}</ImageCard>}
-    />
-  ) : (
-    <Text>No submissions.</Text>
-  )
-}
+const ImageCard = ({ text, src, alt }) => (
+  <Card
+    m={2}
+    p={4}
+    py={6}
+    backgroundImage={`url(${src})`}
+    backgroundSize="cover"
+    borderRadius={8}
+    color="white"
+    bg="darkgray"
+    alt={alt}
+  >
+    <Heading textAlign="center" fontSize={[5, 6]}>
+      {text > 1 ? `+${text - 1}` : ""}
+    </Heading>
+  </Card>
+);
 
-const Section = ({ orgId, name, children }) => (
-  <Box p={3} width={1}>
-    <Heading>{name}</Heading>
-    <Bar />
-    {Object.values(children)
-      .slice(0, 15)
-      .map(({ images, location, id }) => (
-        <FixedCard key={`${orgId}${id}`} width={1} my={3}>
-          <Info images={images} location={location} />
-        </FixedCard>
-      ))}
-  </Box>
-)
-
-const ControlPanel = ({ children }) => {
-  const submissions = Object.values(children).map(org => {
-    if (org.actions) {
-      const actions = org.actions.reduce((acc, v) => acc.concat(v.submissions), [])
-      actions.name = org.name
-      actions.orgId = org.id
-      return actions
-    }
-    return []
-  })
-
-  return (
-    <Flex my={2}>
-      <Card
-        width={1}
-        borderRadius={8}
-        m={4}
-        py={2}
-        px={4}
-        bg="#fff"
-        boxShadow="0 2px 4px rgba(0, 0, 0, 0.3)"
-        className="control-panel"
-      >
-        {submissions.map(({ orgId, name, ...rest }) => (
-          <Section key={orgId} orgId={orgId} name={name}>
-            {rest}
-          </Section>
-        ))}
-      </Card>
-    </Flex>
-  )
-}
-export default ControlPanel
+export default ControlPanel;
