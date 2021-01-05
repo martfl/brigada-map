@@ -7,7 +7,7 @@
     "@deck.gl/layers": "^7.0.9",
     "@deck.gl/mapbox": "^7.0.9",
     "@deck.gl/react": "^7.0.9",
-    "axios": "^0.18.0",
+    "axios": "^0.21.1",
     "intersection-observer": "^0.7.0",
     "navi": "^0.12.7",
     "react": "^16.8.6",
